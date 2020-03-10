@@ -79,9 +79,8 @@ def verify_group_msg(contentlist):
             return True
 
 def reply(content):
-    chat_rooms = itchat.search_chatrooms(name='test')
-    if len(chat_rooms) > 0:
-        itchat.send_msg(content, chat_rooms[0]['UserName'])
+    print('in')
+    itchat.send_msg(content, chatroom_ids[0])
         
 #保存群消息
 def save_group_msg(msg):
@@ -115,34 +114,28 @@ def save_group_msg(msg):
     return 
 
 
+chatroom_ids = []
 
 @itchat.msg_register(itchat.content.TEXT, isGroupChat=True)  #注册对文本消息进行监听，对群聊进行监听
 def print_content(msg):
-    msg_id = msg['MsgId']
+    
     msg_from_user = msg['ActualNickName']
     msg_content = msg['Content']
-    msg_create_time = msg['CreateTime']
-    msg_type = msg['Type']
-    # msg_group_nickname = msg['User']['NickName']
-    # 使用time
-    timeArray = time.localtime(msg_create_time)
-    otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    print("群聊信息: ",msg_id, msg_from_user, msg_content, otherStyleTime,msg_type)
+    msg_chatroom_id = msg['User']['UserName']
+    print('msg_chatroom_id:',msg_chatroom_id)
+    print("群聊信息: ",msg_from_user, msg_content)
+
+    if not msg_chatroom_id in chatroom_ids:
+        return
+    
     save_group_msg(msg)
 
    
 
-# 开始轮询任务
+# 轮询任务
 def start_schedule():
     sched.add_job(logout, 'interval', minutes=1)
     sched.start()
-
-
-#itchat.auto_login(hotReload=True, enableCmdQR=False)
-#itchat.run()
-#start_schedule()
-#mkdir('D://tempfortest/hello')
-
 
 def lc():
     print('login')
@@ -151,7 +144,15 @@ def ec():
     print('exit')
     print (time.strftime('%H:%M:%S',time.localtime(time.time())))
 
-itchat.auto_login(hotReload=True,enableCmdQR=False,loginCallback=lc, exitCallback=ec)
-itchat.run()
+
+if __name__=="__main__":
+
+    itchat.auto_login(hotReload=True,enableCmdQR=False,loginCallback=lc, exitCallback=ec)
+    chat_rooms = itchat.search_chatrooms(name='test')
+    if len(chat_rooms) > 0:
+        print('id:',chat_rooms[0]['UserName'])
+        chatroom_ids.append(chat_rooms[0]['UserName'])
+        print(chatroom_ids[0])
+    itchat.run()
 
 
