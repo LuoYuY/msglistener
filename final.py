@@ -64,19 +64,21 @@ def is_number(s):
     return False
  
 
-#是否为有效消息：含有四个信息（'客户名称', '产品名称', '金额','期数'）
+#是否为有效消息：含有信息 '客户名称', '产品名称', '金额'（,'期数'）
 #金额，期数字段为有效数字
 def verify_group_msg(contentlist):
-    if len(contentlist) !=4 :
-        return False
-    else:
-        if not is_number(contentlist[2]) :
-            return False
-        else:
-            if not is_number(contentlist[3]) :
-                return False
-            else:
+    if len(contentlist) ==4 or len(contentlist) == 3:
+        if len(contentlist) ==4 :
+            if  is_number(contentlist[2]) and contentlist[3].isdigit():
                 return True
+            else:
+                return False
+        else:
+            if  is_number(contentlist[2]):
+                return True
+            else:
+                return False
+                
 #提示信息回复
 def reply(content):
     itchat.send_msg(content, chatroom_ids[0])
@@ -104,6 +106,8 @@ def save_group_msg(msg):
         path = path_prefix + filename
         wb = load_workbook(path)
         ws = wb.active
+        if len(contentlist) < 4 :
+            contentlist.append('')
         ws.append([msg_from_user,contentlist[0],contentlist[1],contentlist[2],contentlist[3],otherStyleTime])
         #ws.append(['微信昵称','客户名称', '产品名称', '金额','几期','提交时间'])
         wb.save(path)
