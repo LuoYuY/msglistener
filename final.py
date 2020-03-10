@@ -14,6 +14,11 @@ from openpyxl  import load_workbook
 from openpyxl.styles import numbers
 
 
+folder = './wechatmsg'
+path_prefix = folder+'/'
+
+
+
 #文件存储位置
 def mkdir(path):
     isExists = os.path.exists(path)
@@ -25,7 +30,7 @@ def mkdir(path):
 
 def mkxls(date):
     filename = date+'.xlsx'
-    path = 'D://tempfortest/hello/'+ filename
+    path = path_prefix + filename
     
     isExists = os.path.exists(path)
     if not isExists:
@@ -105,8 +110,8 @@ def save_group_msg(msg):
         date = time.strftime("%Y%m%d", timeArray)
         mkxls(date)
         filename = date+'.xlsx'
-        path = 'D://tempfortest/hello/'+ filename
-        # 设置文件 mingc
+        path = path_prefix + filename
+       
         wb = load_workbook(path)
         ws = wb.active
         ws.append([msg_from_user,contentlist[0],contentlist[1],contentlist[2],contentlist[3],otherStyleTime])
@@ -150,6 +155,7 @@ def ec():
 if __name__=="__main__":
 
     itchat.auto_login(hotReload=True,enableCmdQR=False,loginCallback=lc, exitCallback=ec)
+    mkdir(folder)
     chat_rooms = itchat.search_chatrooms(name='test')
     if len(chat_rooms) > 0:
         print('id:',chat_rooms[0]['UserName'])
