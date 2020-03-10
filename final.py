@@ -35,10 +35,11 @@ def mkxls(date):
         # 激活 worksheet
         ws = wb.active
         
-        ws.append(['微信昵称','客户名称', '产品名称', '金额','几期','提交时间'])
+        ws.append(['微信昵称','客户名称', '产品名称', '金额','期数','提交时间'])
         col_d = ws.column_dimensions['D']
         col_d.number_format = numbers.FORMAT_NUMBER_00
-
+        col_e = ws.column_dimensions['E']
+        col_e.number_format = numbers.FORMAT_NUMBER_00
         col_f = ws.column_dimensions['F']
         col_f.number_format = numbers.FORMAT_DATE_DATETIME
         wb.save(path)
@@ -72,11 +73,12 @@ def verify_group_msg(contentlist):
         return False
     else:
         if not is_number(contentlist[2]) :
-            print('不是数字')
             return False
         else:
-            print('是数字')
-            return True
+            if not is_number(contentlist[3]) :
+                return False
+            else:
+                return True
 
 def reply(content):
     print('in')
