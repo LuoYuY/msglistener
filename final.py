@@ -2,13 +2,7 @@
 import itchat
 from itchat.content import *
 import os
-import uuid
-import hashlib
 import time, datetime
-from itchat.content import *
-import json,re
-import requests
- 
 from openpyxl import  Workbook 
 from openpyxl  import load_workbook
 from openpyxl.styles import numbers
@@ -16,10 +10,10 @@ from openpyxl.styles import numbers
 
 folder = './wechatmsg'
 path_prefix = folder+'/'
+chatroom_ids = []
 
 
-
-#文件存储位置
+#xlsx文件存储位置
 def mkdir(path):
     isExists = os.path.exists(path)
     if not isExists:
@@ -28,13 +22,13 @@ def mkdir(path):
     else:
         return False
 
+#按日期登记，xlsx文件初始化
 def mkxls(date):
     filename = date+'.xlsx'
     path = path_prefix + filename
     
     isExists = os.path.exists(path)
     if not isExists:
-        print('yes')
         # 实例化
         wb = Workbook()
         # 激活 worksheet
@@ -48,13 +42,12 @@ def mkxls(date):
         col_f = ws.column_dimensions['F']
         col_f.number_format = numbers.FORMAT_DATE_DATETIME
         wb.save(path)
-        print('yes')
         return True
     else:
         return False
 
 
- 
+#是否为有效数字
 def is_number(s):
     try:
         float(s)
@@ -71,10 +64,10 @@ def is_number(s):
     return False
  
 
-
+#是否为有效消息：含有四个信息（'客户名称', '产品名称', '金额','期数'）
+#金额，期数字段为有效数字
 def verify_group_msg(contentlist):
     if len(contentlist) !=4 :
-        print(len(contentlist))
         return False
     else:
         if not is_number(contentlist[2]) :
@@ -84,9 +77,8 @@ def verify_group_msg(contentlist):
                 return False
             else:
                 return True
-
+#提示信息回复
 def reply(content):
-    print('in')
     itchat.send_msg(content, chatroom_ids[0])
         
 #保存群消息
@@ -96,8 +88,7 @@ def save_group_msg(msg):
     msg_content = msg['Content']
     msg_create_time = msg['CreateTime']
     msg_type = msg['Type']
-    #msg_group_nickname = msg['User']['NickName']
-    # 使用time
+    
     timeArray = time.localtime(msg_create_time)
     otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
 
@@ -111,7 +102,6 @@ def save_group_msg(msg):
         mkxls(date)
         filename = date+'.xlsx'
         path = path_prefix + filename
-       
         wb = load_workbook(path)
         ws = wb.active
         ws.append([msg_from_user,contentlist[0],contentlist[1],contentlist[2],contentlist[3],otherStyleTime])
@@ -121,20 +111,16 @@ def save_group_msg(msg):
     return 
 
 
-chatroom_ids = []
-
-@itchat.msg_register(itchat.content.TEXT, isGroupChat=True)  #注册对文本消息进行监听，对群聊进行监听
+#注册对文本消息进行监听，对群聊进行监听
+@itchat.msg_register(itchat.content.TEXT, isGroupChat=True) 
 def print_content(msg):
     
     msg_from_user = msg['ActualNickName']
     msg_content = msg['Content']
     msg_chatroom_id = msg['User']['UserName']
-    print('msg_chatroom_id:',msg_chatroom_id)
     print("群聊信息: ",msg_from_user, msg_content)
-
     if not msg_chatroom_id in chatroom_ids:
         return
-    
     save_group_msg(msg)
 
    
@@ -143,6 +129,7 @@ def print_content(msg):
 def start_schedule():
     sched.add_job(logout, 'interval', minutes=1)
     sched.start()
+
 
 def lc():
     print('login')
@@ -153,14 +140,11 @@ def ec():
 
 
 if __name__=="__main__":
-
     itchat.auto_login(hotReload=True,enableCmdQR=False,loginCallback=lc, exitCallback=ec)
     mkdir(folder)
     chat_rooms = itchat.search_chatrooms(name='test')
     if len(chat_rooms) > 0:
-        print('id:',chat_rooms[0]['UserName'])
         chatroom_ids.append(chat_rooms[0]['UserName'])
-        print(chatroom_ids[0])
     itchat.run()
 
 
