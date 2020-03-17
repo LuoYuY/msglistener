@@ -6,6 +6,7 @@ import time, datetime
 from openpyxl import  Workbook 
 from openpyxl  import load_workbook
 from openpyxl.styles import numbers
+import threading
 
 
 folder = './wechatmsg'
@@ -145,7 +146,7 @@ if __name__=="__main__":
     chat_rooms = itchat.search_chatrooms(name='家庭群')
     if len(chat_rooms) > 0:
         chatroom_ids.append(chat_rooms[0]['UserName'])
-    sleep(2)
+    time.sleep(0.5)
     itchat.run()
 
 
