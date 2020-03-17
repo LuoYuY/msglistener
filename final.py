@@ -143,7 +143,7 @@ def ec():
 if __name__=="__main__":
     itchat.auto_login(hotReload=True,enableCmdQR=False,loginCallback=lc, exitCallback=ec)
     mkdir(folder)
-    chat_rooms = itchat.search_chatrooms(name='家庭群')
+    chat_rooms = itchat.search_chatrooms(name='此处为群名')
     if len(chat_rooms) > 0:
         chatroom_ids.append(chat_rooms[0]['UserName'])
     time.sleep(0.5)
