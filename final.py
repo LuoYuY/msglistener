@@ -35,10 +35,6 @@ def mkxls(date):
         ws = wb.active
         
         ws.append(['微信昵称','客户名称', '产品名称', '金额','期数','提交时间'])
-        col_d = ws.column_dimensions['D']
-        col_d.number_format = numbers.FORMAT_NUMBER_00
-        col_e = ws.column_dimensions['E']
-        col_e.number_format = numbers.FORMAT_NUMBER_00
         col_f = ws.column_dimensions['F']
         col_f.number_format = numbers.FORMAT_DATE_DATETIME
         wb.save(path)
@@ -69,12 +65,12 @@ def is_number(s):
 def verify_group_msg(contentlist):
     if len(contentlist) ==4 or len(contentlist) == 3:
         if len(contentlist) ==4 :
-            if  is_number(contentlist[2]) and contentlist[3].isdigit():
+            if  is_number(contentlist[2][:-1]) and contentlist[3][:-1].isdigit():
                 return True
             else:
                 return False
         else:
-            if  is_number(contentlist[2]):
+            if  is_number(contentlist[2][:-1]):
                 return True
             else:
                 return False
@@ -146,9 +142,10 @@ def ec():
 if __name__=="__main__":
     itchat.auto_login(hotReload=True,enableCmdQR=False,loginCallback=lc, exitCallback=ec)
     mkdir(folder)
-    chat_rooms = itchat.search_chatrooms(name='test')
+    chat_rooms = itchat.search_chatrooms(name='家庭群')
     if len(chat_rooms) > 0:
         chatroom_ids.append(chat_rooms[0]['UserName'])
+    sleep(2)
     itchat.run()
 
 
